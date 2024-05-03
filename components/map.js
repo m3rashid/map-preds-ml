@@ -1,35 +1,87 @@
-import MapView, { Callout, Circle, Heatmap, PROVIDER_GOOGLE } from "react-native-maps";
-import React, { useState, useMemo } from "react";
-import { Pressable, Text, useWindowDimensions, View } from "react-native"
-import { filterData, immediateAction } from "./dataCluster";
-import data from "./predictions.json";
+import React, { useState, useTransition } from 'react';
+import RNPickerSelect from 'react-native-picker-select';
+import {
+	Pressable,
+	Text,
+	useWindowDimensions,
+	View,
+	Modal,
+	StyleSheet,
+	ActivityIndicator,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import MapView, {
+	Callout,
+	Circle,
+	Heatmap,
+	PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
-/**
- * Select dropdown with all actions
- * Both the views: Heatmap and Circle
- * Legend showing what the colors mean
- */
+import {
+	groupedData,
+	getColor,
+	viewTypes,
+	selectLabels,
+	initialRegion,
+	recommendationTimeColorMap,
+} from './dataCluster';
 
-const initialRegion = {
-	latitude: 40.5,
-	longitude: -88.9,
-	latitudeDelta: 0.5,
-	longitudeDelta: 0.5,
-};
-
-const filterTypes = {
-	none: "none",
-	immediate: "immediate"
-}
 const RenderMap = () => {
-	const { height: windowHeight } = useWindowDimensions()
-	const [filterType, setFilterType] = useState(filterTypes.none);
-	const actionFilteredData = useMemo(() => filterData(data), [])
-	const immediateActionData = useMemo(() => filterData(data, immediateAction), [])
+	const [actionTime, setActionTime] = useState(0);
+	const [isPending, startTransition] = useTransition();
+	const { height: windowHeight } = useWindowDimensions();
+	const [modalVisible, setModalVisible] = useState(false);
+	const [viewType, setViewType] = useState(viewTypes.heatmap);
 
+	const handleViewChange = () => {
+		startTransition(() => {
+			setActionTime(3);
+			setViewType((prev) =>
+				prev === viewTypes.heatmap ? viewTypes.circle : viewTypes.heatmap
+			);
+		});
+	};
 
 	return (
 		<View style={{ margin: 0, padding: 0, backgroundColor: '#a7f3d0' }}>
+			<Modal
+				animationType='slide'
+				transparent={true}
+				visible={modalVisible}
+				onRequestClose={() => setModalVisible((p) => !p)}
+			>
+				<View style={styles.centeredView}>
+					<View style={styles.modalView}>
+						<Text style={{ marginBottom: 20, fontSize: 16, fontWeight: 600 }}>
+							Legend
+						</Text>
+
+						{recommendationTimeColorMap.map((color, i) => (
+							<View
+								key={color}
+								style={{ flexDirection: 'row', gap: 10, marginBottom: 5 }}
+							>
+								<View
+									style={{
+										backgroundColor: color,
+										width: 20,
+										height: 20,
+										borderRadius: 10,
+									}}
+								></View>
+								<Text>Action in {i + 1} months</Text>
+							</View>
+						))}
+						<Pressable
+							style={styles.button}
+							onPress={() => setModalVisible((p) => !p)}
+						>
+							<Text style={styles.textStyle}>Close Legend</Text>
+						</Pressable>
+					</View>
+				</View>
+			</Modal>
+
 			<MapView
 				style={{ width: '100%', height: windowHeight }}
 				showsUserLocation={true}
@@ -38,52 +90,120 @@ const RenderMap = () => {
 				provider={PROVIDER_GOOGLE}
 				initialRegion={initialRegion}
 			>
-				{(filterType === filterTypes.immediate ? immediateActionData : actionFilteredData).map((d, index) => {
-					return (
+				{viewType === viewTypes.circle ? (
+					groupedData[actionTime].map((d, i) => (
 						<Circle
-							key={index}
-							radius={filterType === filterTypes.immediate ? 50 : 20}
-							fillColor={d.color}
-							strokeColor={d.color}
+							key={i}
+							radius={40}
+							fillColor={getColor(d.month)}
+							strokeColor={getColor(d.month)}
 							center={{ latitude: d.lat, longitude: d.lng }}
 						>
 							<Callout>
-								<Text>{JSON.stringify({ latitude: d.lat, longitude: d.lng })}</Text>
+								<Text>
+									{JSON.stringify({ latitude: d.lat, longitude: d.lng })}
+								</Text>
 							</Callout>
 						</Circle>
-					);
-				})}
-
-				{/* <Heatmap
-					points={((filterType === filterTypes.immediate ? immediateActionData : actionFilteredData) || []).map((d) => ({
-						latitude: d.lat,
-						longitude: d.lng,
-						weight: (1 / (d.time + 1)) * 5
-					}))} /> */}
+					))
+				) : (
+					<Heatmap
+						points={groupedData[actionTime].map((d) => ({
+							latitude: d.lat,
+							longitude: d.lng,
+							weight: (1 / (d.time + 1)) * 2 || 1,
+						}))}
+					/>
+				)}
 			</MapView>
 
-			<View style={{ alignItems: "center", justifyContent: "center" }}>
+			<View
+				style={{
+					alignItems: 'center',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					gap: 15,
+				}}
+			>
+				<RNPickerSelect
+					value={actionTime}
+					onValueChange={(value) => setActionTime(value)}
+					style={{
+						inputIOS: { width: 220 },
+						inputAndroid: { width: 220 },
+					}}
+					items={[
+						{ label: selectLabels[1], value: 1, key: 1 },
+						{ label: selectLabels[2], value: 2, key: 2 },
+						{ label: selectLabels[3], value: 3, key: 3 },
+						{ label: selectLabels[4], value: 4, key: 4 },
+						{ label: selectLabels[5], value: 5, key: 5 },
+						{ label: selectLabels[0], value: 0, key: 0 },
+					]}
+				/>
+
 				<Pressable
 					style={{
-						backgroundColor: "#0ea5e9",
+						backgroundColor: '#0ea5e9',
 						paddingVertical: 10,
-						marginBottom: 5,
-						marginTop: 5,
 						borderRadius: 10,
 						paddingHorizontal: 20,
 					}}
-					onPress={() => {
-						setFilterType((prev) => {
-							return prev === filterTypes.immediate ? filterTypes.none : filterTypes.immediate
-						})
-					}}>
-					<Text style={{ color: "white", fontWeight: "bold" }}>
-						{filterType === filterTypes.immediate ? "Show all Action points" : "Show Immediate action points"}
-					</Text>
+					onPress={handleViewChange}
+				>
+					{isPending ? (
+						<ActivityIndicator />
+					) : (
+						<Text style={{ color: 'white', fontWeight: 'bold' }}>
+							{viewType === viewTypes.heatmap ? 'Dots View' : 'Show Heatmap'}
+						</Text>
+					)}
 				</Pressable>
+
+				<Icon
+					name='information-circle-outline'
+					size={32}
+					color='#000'
+					style={{ backgroundColor: '#fff', padding: 4, borderRadius: 32 }}
+					onPress={() => setModalVisible(true)}
+				/>
 			</View>
 		</View>
-	)
-}
+	);
+};
 
-export default RenderMap
+export default RenderMap;
+
+const styles = StyleSheet.create({
+	centeredView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	modalView: {
+		backgroundColor: 'white',
+		borderRadius: 8,
+		paddingVertical: 10,
+		paddingHorizontal: 50,
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		elevation: 5,
+	},
+	button: {
+		borderRadius: 10,
+		paddingVertical: 10,
+		paddingHorizontal: 20,
+		backgroundColor: '#0ea5e9',
+		elevation: 2,
+		marginTop: 20,
+	},
+	textStyle: {
+		color: 'white',
+		fontWeight: 'bold',
+		textAlign: 'center',
+	},
+});
