@@ -1,38 +1,34 @@
-import React, { useState, useTransition } from 'react';
-import RNPickerSelect from 'react-native-picker-select';
 import {
-	Pressable,
 	Text,
-	useWindowDimensions,
 	View,
 	Modal,
+	Platform,
+	Pressable,
 	StyleSheet,
 	ActivityIndicator,
+	useWindowDimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MapView, {
-	Callout,
-	Circle,
-	Heatmap,
-	PROVIDER_GOOGLE,
-} from 'react-native-maps';
+import React, { useState, useTransition } from 'react';
+import RNPickerSelect from 'react-native-picker-select';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import MapView, { Circle, Heatmap, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 
 import {
-	groupedData,
 	getColor,
 	viewTypes,
+	groupedData,
 	selectLabels,
 	initialRegion,
 	recommendationTimeColorMap,
 } from './dataCluster';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RenderMap = () => {
 	const [actionTime, setActionTime] = useState(0);
 	const [isPending, startTransition] = useTransition();
 	const { height: windowHeight } = useWindowDimensions();
 	const [modalVisible, setModalVisible] = useState(false);
-	const [viewType, setViewType] = useState(viewTypes.heatmap);
+	const [viewType, setViewType] = useState(Platform.OS === "ios" ? viewTypes.circle : viewTypes.heatmap);
 
 	const handleViewChange = () => {
 		startTransition(() => {
@@ -88,8 +84,9 @@ const RenderMap = () => {
 					alignItems: 'center',
 					flexDirection: 'row',
 					justifyContent: 'center',
-					gap: 15,
+					gap: 10,
 					height: 60,
+					marginHorizontal: 10
 				}}
 			>
 				<RNPickerSelect
@@ -139,7 +136,7 @@ const RenderMap = () => {
 				showsUserLocation={true}
 				showsCompass={true}
 				showsPointsOfInterest={false}
-				provider={PROVIDER_GOOGLE}
+				provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
 				initialRegion={initialRegion}
 			>
 				{viewType === viewTypes.circle ? (
@@ -213,7 +210,6 @@ const pickerSelectStyles = StyleSheet.create({
 		borderRadius: 4,
 		color: 'black',
 		width: 200,
-		marginLeft: 20,
 		paddingRight: 30, // to ensure the text is never behind the icon
 	},
 	inputAndroid: {
