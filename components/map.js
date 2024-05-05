@@ -150,13 +150,7 @@ const RenderMap = () => {
 							fillColor={getColor(d.month)}
 							strokeColor={getColor(d.month)}
 							center={{ latitude: d.lat, longitude: d.lng }}
-						>
-							<Callout>
-								<Text>
-									{JSON.stringify({ latitude: d.lat, longitude: d.lng })}
-								</Text>
-							</Callout>
-						</Circle>
+						/>
 					))
 				) : (
 					<Heatmap
