@@ -1,20 +1,14 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import RenderMap from "./components/map";
 
 function App() {
 	return (
-		<View style={styles.container}>
-			<RenderMap/>
-		</View>
+		<SafeAreaProvider style={{ flex: 1 }}>
+			<RenderMap />
+		</SafeAreaProvider>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-});
 
 export default App

@@ -25,6 +25,7 @@ import {
 	initialRegion,
 	recommendationTimeColorMap,
 } from './dataCluster';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RenderMap = () => {
 	const [actionTime, setActionTime] = useState(0);
@@ -43,7 +44,7 @@ const RenderMap = () => {
 	};
 
 	return (
-		<View style={{ margin: 0, padding: 0, backgroundColor: '#a7f3d0' }}>
+		<SafeAreaView style={{ margin: 0, padding: 0, backgroundColor: '#a7f3d0' }}>
 			<Modal
 				animationType='slide'
 				transparent={true}
@@ -83,7 +84,7 @@ const RenderMap = () => {
 			</Modal>
 
 			<MapView
-				style={{ width: '100%', height: windowHeight }}
+				style={{ width: '100%', height: windowHeight - 60 }}
 				showsUserLocation={true}
 				showsCompass={true}
 				showsPointsOfInterest={false}
@@ -111,7 +112,7 @@ const RenderMap = () => {
 						points={groupedData[actionTime].map((d) => ({
 							latitude: d.lat,
 							longitude: d.lng,
-							weight: (1 / (d.time + 1)) * 2 || 1,
+							weight: (1 / (d.time + 1)) * 100 || 1,
 						}))}
 					/>
 				)}
@@ -123,6 +124,7 @@ const RenderMap = () => {
 					flexDirection: 'row',
 					justifyContent: 'center',
 					gap: 15,
+					height: 60
 				}}
 			>
 				<RNPickerSelect
@@ -168,7 +170,7 @@ const RenderMap = () => {
 					onPress={() => setModalVisible(true)}
 				/>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
