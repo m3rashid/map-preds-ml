@@ -140,9 +140,7 @@ const RenderMap = () => {
 				showsUserLocation={true}
 				showsCompass={true}
 				showsPointsOfInterest={false}
-				provider={
-					Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-				}
+				provider={PROVIDER_DEFAULT}
 				initialRegion={initialRegion}
 			>
 				{viewType === viewTypes.circle ? (
