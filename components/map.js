@@ -205,14 +205,15 @@ const styles = StyleSheet.create({
 const pickerSelectStyles = StyleSheet.create({
 	inputIOS: {
 		fontSize: 16,
-		paddingVertical: 12,
+		// paddingVertical: 12,
+		paddingTop: 12,
 		paddingHorizontal: 10,
-		borderWidth: 1,
-		borderColor: 'gray',
+		// borderWidth: 1,
+		// borderColor: 'gray',
 		borderRadius: 4,
 		color: 'black',
-		width: 160,
-		marginLeft: 50,
+		width: 200,
+		marginLeft: 20,
 		paddingRight: 30, // to ensure the text is never behind the icon
 	},
 	inputAndroid: {
