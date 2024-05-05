@@ -89,16 +89,13 @@ const RenderMap = () => {
 					flexDirection: 'row',
 					justifyContent: 'center',
 					gap: 15,
-					height: 60
+					height: 60,
 				}}
 			>
 				<RNPickerSelect
 					value={actionTime}
 					onValueChange={(value) => setActionTime(value)}
-					style={{
-						inputIOS: { width: 220 },
-						inputAndroid: { width: 220 },
-					}}
+					style={pickerSelectStyles}
 					items={[
 						{ label: selectLabels[1], value: 1, key: 1 },
 						{ label: selectLabels[2], value: 2, key: 2 },
@@ -127,13 +124,14 @@ const RenderMap = () => {
 					)}
 				</Pressable>
 
-				<Icon
-					name='information-circle-outline'
-					size={32}
-					color='#000'
-					style={{ backgroundColor: '#fff', padding: 4, borderRadius: 32 }}
-					onPress={() => setModalVisible(true)}
-				/>
+				<View style={{ backgroundColor: '#fff', padding: 4, borderRadius: 32 }}>
+					<Icon
+						size={32}
+						color='#000'
+						name='information-circle-outline'
+						onPress={() => setModalVisible(true)}
+					/>
+				</View>
 			</View>
 
 			<MapView
@@ -207,5 +205,30 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontWeight: 'bold',
 		textAlign: 'center',
+	},
+});
+
+const pickerSelectStyles = StyleSheet.create({
+	inputIOS: {
+		fontSize: 16,
+		paddingVertical: 12,
+		paddingHorizontal: 10,
+		borderWidth: 1,
+		borderColor: 'gray',
+		borderRadius: 4,
+		color: 'black',
+		width: 220,
+		paddingRight: 30, // to ensure the text is never behind the icon
+	},
+	inputAndroid: {
+		fontSize: 16,
+		paddingHorizontal: 10,
+		paddingVertical: 8,
+		borderWidth: 0.5,
+		borderColor: 'purple',
+		borderRadius: 8,
+		width: 220,
+		color: 'black',
+		paddingRight: 30, // to ensure the text is never behind the icon
 	},
 });
