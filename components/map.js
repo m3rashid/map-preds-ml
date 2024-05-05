@@ -83,41 +83,6 @@ const RenderMap = () => {
 				</View>
 			</Modal>
 
-			<MapView
-				style={{ width: '100%', height: windowHeight - 60 }}
-				showsUserLocation={true}
-				showsCompass={true}
-				showsPointsOfInterest={false}
-				provider={PROVIDER_GOOGLE}
-				initialRegion={initialRegion}
-			>
-				{viewType === viewTypes.circle ? (
-					groupedData[actionTime].map((d, i) => (
-						<Circle
-							key={i}
-							radius={40}
-							fillColor={getColor(d.month)}
-							strokeColor={getColor(d.month)}
-							center={{ latitude: d.lat, longitude: d.lng }}
-						>
-							<Callout>
-								<Text>
-									{JSON.stringify({ latitude: d.lat, longitude: d.lng })}
-								</Text>
-							</Callout>
-						</Circle>
-					))
-				) : (
-					<Heatmap
-						points={groupedData[actionTime].map((d) => ({
-							latitude: d.lat,
-							longitude: d.lng,
-							weight: (1 / (d.time + 1)) * 100 || 1,
-						}))}
-					/>
-				)}
-			</MapView>
-
 			<View
 				style={{
 					alignItems: 'center',
@@ -170,6 +135,41 @@ const RenderMap = () => {
 					onPress={() => setModalVisible(true)}
 				/>
 			</View>
+
+			<MapView
+				style={{ width: '100%', height: windowHeight }}
+				showsUserLocation={true}
+				showsCompass={true}
+				showsPointsOfInterest={false}
+				provider={PROVIDER_GOOGLE}
+				initialRegion={initialRegion}
+			>
+				{viewType === viewTypes.circle ? (
+					groupedData[actionTime].map((d, i) => (
+						<Circle
+							key={i}
+							radius={40}
+							fillColor={getColor(d.month)}
+							strokeColor={getColor(d.month)}
+							center={{ latitude: d.lat, longitude: d.lng }}
+						>
+							<Callout>
+								<Text>
+									{JSON.stringify({ latitude: d.lat, longitude: d.lng })}
+								</Text>
+							</Callout>
+						</Circle>
+					))
+				) : (
+					<Heatmap
+						points={groupedData[actionTime].map((d) => ({
+							latitude: d.lat,
+							longitude: d.lng,
+							weight: (1 / (d.time + 1)) * 100 || 1,
+						}))}
+					/>
+				)}
+			</MapView>
 		</SafeAreaView>
 	);
 };
