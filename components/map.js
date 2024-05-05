@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import React, { useState, useTransition } from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Circle, Heatmap, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Circle, Heatmap, PROVIDER_DEFAULT } from 'react-native-maps';
 
 import {
 	getColor,
@@ -28,7 +28,9 @@ const RenderMap = () => {
 	const [isPending, startTransition] = useTransition();
 	const { height: windowHeight } = useWindowDimensions();
 	const [modalVisible, setModalVisible] = useState(false);
-	const [viewType, setViewType] = useState(Platform.OS === "ios" ? viewTypes.circle : viewTypes.heatmap);
+	const [viewType, setViewType] = useState(
+		Platform.OS === 'ios' ? viewTypes.circle : viewTypes.heatmap
+	);
 
 	const handleViewChange = () => {
 		startTransition(() => {
@@ -86,7 +88,7 @@ const RenderMap = () => {
 					justifyContent: 'center',
 					gap: 10,
 					height: 60,
-					marginHorizontal: 10
+					marginHorizontal: 10,
 				}}
 			>
 				<RNPickerSelect
@@ -103,23 +105,25 @@ const RenderMap = () => {
 					]}
 				/>
 
-				<Pressable
-					style={{
-						backgroundColor: '#0ea5e9',
-						paddingVertical: 10,
-						borderRadius: 10,
-						paddingHorizontal: 20,
-					}}
-					onPress={handleViewChange}
-				>
-					{isPending ? (
-						<ActivityIndicator />
-					) : (
-						<Text style={{ color: 'white', fontWeight: 'bold' }}>
-							{viewType === viewTypes.heatmap ? 'Dots View' : 'Show Heatmap'}
-						</Text>
-					)}
-				</Pressable>
+				{Platform.OS === 'android' ? (
+					<Pressable
+						style={{
+							backgroundColor: '#0ea5e9',
+							paddingVertical: 10,
+							borderRadius: 10,
+							paddingHorizontal: 20,
+						}}
+						onPress={handleViewChange}
+					>
+						{isPending ? (
+							<ActivityIndicator />
+						) : (
+							<Text style={{ color: 'white', fontWeight: 'bold' }}>
+								{viewType === viewTypes.heatmap ? 'Dots View' : 'Show Heatmap'}
+							</Text>
+						)}
+					</Pressable>
+				) : null}
 
 				<View style={{ backgroundColor: '#fff', padding: 4, borderRadius: 32 }}>
 					<Icon
@@ -136,7 +140,9 @@ const RenderMap = () => {
 				showsUserLocation={true}
 				showsCompass={true}
 				showsPointsOfInterest={false}
-				provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+				provider={
+					Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
+				}
 				initialRegion={initialRegion}
 			>
 				{viewType === viewTypes.circle ? (
@@ -202,23 +208,14 @@ const styles = StyleSheet.create({
 const pickerSelectStyles = StyleSheet.create({
 	inputIOS: {
 		fontSize: 16,
-		// paddingVertical: 12,
 		paddingTop: 16,
 		paddingHorizontal: 10,
-		// borderWidth: 1,
-		// borderColor: 'gray',
 		borderRadius: 4,
 		color: 'black',
 		width: 200,
 		paddingRight: 30, // to ensure the text is never behind the icon
 	},
 	inputAndroid: {
-		// fontSize: 16,
-		// paddingHorizontal: 10,
-		// paddingVertical: 8,
-		// borderWidth: 0.5,
-		// borderColor: 'purple',
-		// borderRadius: 8,
 		width: 220,
 		color: 'black',
 		paddingRight: 30, // to ensure the text is never behind the icon
